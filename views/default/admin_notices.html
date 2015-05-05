@@ -1,0 +1,8 @@
+{{extend 'layout.html'}}
+<h1>Administrar Avisos</h1>
+<p>
+    <a class="btn btn-default" href="{{=URL('default','admin_notices')}}" role="button">Ver Todos</a>
+    <a class="btn btn-default" href="{{=URL('default','admin_notices',vars=dict(filter='next'))}}" role="button">Ver Vigentes</a>
+    <a class="btn btn-default" href="{{=URL('default','admin_notices',vars=dict(filter='need_approval'))}}" role="button">Necesitan Aprobación</a>
+</p>
+{{=grid}}

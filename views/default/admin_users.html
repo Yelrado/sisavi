@@ -1,0 +1,12 @@
+{{extend 'layout.html'}}
+<h1>Administrar usuarios</h1>
+<p>
+    Para aprobar un usuario debe dejar <em>vacío</em> el campo <strong>Llave de registro</strong>, si el usuario está pendiente el campo mostrará <em>pending</em>. Si desea bloquear al usuario debe escribir en el campo <em>blocked</em>.
+</p>
+<p>
+    El campo <strong>Requires Approval</strong> indica si éste usuario necesitará que cada publicación que realice necesite ser aprobada para que se publique. Si no quiere aprobar cada publicación deberá marcar la casilla.
+</p>
+<p>
+    <strong>Is Admin</strong> indica si éste usuario tiene permisos de administración en la aplicación.
+</p>
+{{=grid}}

@@ -1,0 +1,112 @@
+{{extend 'layout.html'}}
+
+{{block header}}
+    <header class="container-fluid">
+        {{if response.title:}}
+        <h1>{{=response.title}}
+          <small>{{=response.subtitle or ''}}</small></h1>
+        {{pass}}
+    </header>
+{{end}}
+
+<ul class="nav nav-pills pull-right">
+  <li role="presentation" class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+      Filtrar
+    </a>
+    <ul class="dropdown-menu" role="menu">
+      <li {{if request.vars.filter == None:}} class="disabled" {{pass}}>
+        <a href="{{=URL('default','index')}}" {{if request.vars.filter == None:}} style="pointer-events: none;" {{pass}}>Mostrar todos</a>
+      </li>
+      <li {{if request.vars.filter == 'notices':}} class="disabled" {{pass}}>
+        <a href="{{=URL('default','index',vars=dict(request.get_vars.items() + dict(filter='notices').items()))}}"
+           {{if request.vars.filter == 'notices':}} style="pointer-events: none;" {{pass}} >
+            Avisos
+        </a>
+      </li>
+      <li {{if request.vars.filter == 'events':}} class="disabled" {{pass}}>
+        <a href="{{=URL('default','index',vars=dict(request.get_vars.items() + dict(filter='events').items()))}}"
+           {{if request.vars.filter == 'events':}} style="pointer-events: none;" {{pass}} >
+            Eventos
+        </a>
+      </li>
+    </ul>
+  </li>
+  <li role="presentation" class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+      Ordenar por
+    </a>
+    <ul class="dropdown-menu" role="menu">
+      <li {{if request.vars.orderby == 'cron' or request.vars.orderby == None:}} class="disabled" {{pass}}>
+        <a href="{{=URL('default','index',vars=dict(request.get_vars.items() + dict(orderby='cron').items()))}}"
+           {{if request.vars.orderby == 'cron' or request.vars.orderby == None:}} style="pointer-events: none;" {{pass}} >
+            Más recientes
+        </a>
+      </li>
+      <li {{if request.vars.orderby == 'next':}} class="disabled" {{pass}}>
+        <a href="{{=URL('default','index',vars=dict(request.get_vars.items() + dict(orderby='next').items()))}}"
+           {{if request.vars.orderby == 'next':}} style="pointer-events: none;" {{pass}} >
+            Próximos a terminar
+        </a>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+{{
+def proximidad(fecha):
+    dif = fecha - request.now
+    if dif.days <= 1:
+}}
+        <span class="label label-danger"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" title="Termina en"></span></span> <span class="text-muted">{{=fecha}}</span>
+  {{elif dif.days <= 7:}}
+        <span class="label label-warning"><span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true" title="Termina en"></span></span> <span class="text-muted">{{=fecha}}</span>
+  {{else:}}
+        <span class="label label-success"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true" title="Termina en"></span></span> <span class="text-muted">{{=fecha}}</span>
+  {{pass}}
+{{return}}
+
+{{for r in avisos:}}
+{{
+es_evento = False if r.event_start_date==None else True
+if r.priority == 'Normal':
+    htag = 'h4'
+elif r.priority == 'Baja':
+    htag = 'h6'
+else:
+    #Alta
+    htag = 'h2'
+pass
+}}
+<div class="row">
+  <div class="col-md-8 col-md-offset-2 bs-example">
+    <{{=htag}}>{{if es_evento:}}<span class="glyphicon glyphicon-calendar" aria-hidden="true" title="Evento"></span> 
+        {{else:}}<span class="glyphicon glyphicon-bullhorn" aria-hidden="true" title="Aviso"></span> 
+        {{pass}}
+        {{=r.title}}<small class="pull-right"><span class="glyphicon glyphicon-time" aria-hidden="true" title="Publicado el"></span> {{=prettydate(r.created_on,T)}}</small>
+    </{{=htag}}>
+    <hr>
+    <p>{{=MARKMIN(r.description)}}</p>
+    {{if r.image:}}
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <img src="{{=URL('download', args=r.image)}}" class="img-rounded">
+      </div>
+    </div>
+    {{pass}}
+
+    {{if r.link:}}
+    <div class="row">
+      <div class="col-md-8 col-md-offset-2">
+        <div class="well well-sm"><span class="glyphicon glyphicon-link" aria-hidden="true"></span> <a href="{{=r.link}}">{{=r.link}}</a></div>
+      </div>
+    </div>
+    {{pass}}
+    <hr>
+    <p>
+      <div class="pull-left">{{proximidad(r.finish_on)}}</div>
+      <div class="pull-right text-info"><span class="glyphicon glyphicon-user" aria-hidden="true" title="Publicado por"></span> {{=r.author.first_name+' '+r.author.last_name}}</div>
+    </p>
+  </div>
+</div>
+{{pass}}
